@@ -1,0 +1,34 @@
+# Deliberately tiny limits so every saturation point is reachable from a laptop.
+# Each experiment in README.md says which value to change.
+server:
+  tomcat:
+    threads:
+      max: 10              # worker pool size (default 200)
+      min-spare: 2         # must not be larger than max
+    max-connections: 20    # connections Tomcat holds open (default 8192)
+    accept-count: 5        # OS backlog used only after max-connections (default 100)
+    mbeanregistry:
+      enabled: true        # required for tomcat.* metrics
+
+spring:
+  threads:
+    virtual:
+      enabled: false       # Experiment G switches this to true
+  datasource:
+    url: jdbc:h2:mem:lab
+    hikari:
+      maximum-pool-size: 5       # default is 10
+      connection-timeout: 3000   # ms a thread waits for a free connection (default 30000)
+
+management:
+  server:
+    port: 8081             # separate connector + thread pool: metrics stay readable while 8080 is saturated
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,threaddump
+
+logging:
+  pattern:
+    # [%thread] prints the thread name on every line so you can follow a request
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - %msg%n"
